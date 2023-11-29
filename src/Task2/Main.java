@@ -2,6 +2,7 @@ package Task2;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class Main {
@@ -13,13 +14,15 @@ public class Main {
         String saveName1 = "C://IdeaProjects/Games/savegames/save1.dat";
         String saveName2 = "C://IdeaProjects/Games/savegames/save2.dat";
         String saveName3 = "C://IdeaProjects/Games/savegames/save3.dat";
+        String zipFile = "C://IdeaProjects/Games/savegames/saves.zip";
 
         saveGame(saveName1, save1);
         saveGame(saveName2, save2);
         saveGame(saveName3, save3);
 
         String[] files = {saveName1, saveName2, saveName3};
-        zipFiles("C://IdeaProjects/Games/savegames/saves.zip", files);
+        zipFiles(zipFile, files);
+        deleteFiles(zipFile, "C://IdeaProjects/Games/savegames");
     }
 
     public static void saveGame(String path, GameProgress game) throws IOException {
@@ -47,9 +50,23 @@ public class Main {
                 }
                 zout.closeEntry();
                 fis.close();
-                srcFile.delete();
             }
         } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public static void deleteFiles(String archive, String folder) {
+        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(archive))) {
+            ZipEntry entry;
+            String name;
+            while ((entry = zin.getNextEntry()) != null) {
+                name = entry.getName();
+                File srcFile = new File(folder, name);
+                srcFile.delete();
+                zin.closeEntry();
+            }
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
